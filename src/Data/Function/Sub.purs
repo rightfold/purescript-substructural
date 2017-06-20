@@ -63,7 +63,8 @@ instance dropString :: Drop String where drop = unsafeDrop
 
 instance cloneArray :: (Clone a) => Clone (Array a) where
   clone = cloneArrayFFI clone Tuple fst snd
-instance dropArray :: (Drop a) => Drop (Array a) where drop = unsafeDrop
+instance dropArray :: (Drop a) => Drop (Array a) where
+  drop = dropArrayFFI drop
 
 foreign import unsafeCloneFFI
   :: ∀ a
@@ -79,6 +80,12 @@ foreign import cloneArrayFFI
   -> (∀ l r. Tuple l r -> r)
   -> Array a
   -+ Tuple (Array a) (Array a)
+
+foreign import dropArrayFFI
+  :: ∀ a
+   . (a -! Unit)
+  -> Array a
+  -! Unit
 
 --------------------------------------------------------------------------------
 

@@ -30,6 +30,15 @@ exports.cloneArrayFFI = function(clone) {
   };
 };
 
+exports.dropArrayFFI = function(drop) {
+  return function(array) {
+    var length = array.length;
+    for (var i = 0; i < length; ++i) {
+      drop(array[i]);
+    }
+  };
+};
+
 exports.composeFFI = function(f) {
   return function(g) {
     return function(x) {
