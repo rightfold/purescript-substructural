@@ -1,14 +1,13 @@
-module Data.Array.Linear
+module Data.Array.Sub
   ( borrowArray
   ) where
 
 import Control.Monad.Eff (Eff)
 import Control.Monad.ST (ST)
 import Data.Array.ST (STArray)
-import Data.Function.Linear (type (-*))
+import Data.Function.Sub (Sub)
 
 foreign import borrowArray
-  :: ∀ a
+  :: ∀ a c
    . (∀ s. STArray s a -> Eff (st :: ST s) (STArray s a))
-  -> Array a
-  -* Array a
+  -> Sub c (Array a) (Array a)
