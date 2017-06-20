@@ -8,7 +8,8 @@ exports.runSubArray = function(sub) {
 
 exports.borrowArray = function(scope) {
   return function(array) {
-    return scope(array);
+    scope(array)();
+    return array;
   };
 };
 
