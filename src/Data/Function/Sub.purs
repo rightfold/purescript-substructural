@@ -36,25 +36,25 @@ foreign import data DROP :: Capability
 -- |
 -- | - Clone: `fst' <<< clone = snd' <<< clone = id`
 class Clone a where
-  clone :: a -+ Tuple a a
+  clone :: ∀ c. Sub (clone :: CLONE | c) a (Tuple a a)
 
 -- | Values which can be dropped.
 class Drop a where
-  drop :: a -! Unit
+  drop :: ∀ c. Sub (drop :: DROP | c) a Unit
 
 -- | Unsafely clone a value.
-unsafeClone :: ∀ a. a -+ Tuple a a
+unsafeClone :: ∀ c a. Sub (clone :: CLONE | c) a (Tuple a a)
 unsafeClone = unsafeCloneFFI Tuple
 
 -- | Unsafely drop a value.
-foreign import unsafeDrop :: ∀ a. a -! Unit
+foreign import unsafeDrop :: ∀ c a. Sub (drop :: DROP | c) a Unit
 
 -- | Drop the second element of a tuple.
-fst' :: ∀ a b. Drop b => Tuple a b -! a
+fst' :: ∀ c a b. Drop b => Sub (drop :: DROP | c) (Tuple a b) a
 fst' = fst'FFI drop fst snd
 
 -- | Drop the first element of a tuple.
-snd' :: ∀ a b. Drop a => Tuple a b -! b
+snd' :: ∀ c a b. Drop a => Sub (drop :: DROP | c) (Tuple a b) b
 snd' = snd'FFI drop fst snd
 
 instance cloneVoid :: Clone Void where clone = unsafeClone
@@ -84,41 +84,36 @@ instance dropArray :: (Drop a) => Drop (Array a) where
   drop = dropArrayFFI drop
 
 foreign import unsafeCloneFFI
-  :: ∀ a
+  :: ∀ c a
    . (∀ l r. l -> r -> Tuple l r)
-  -> a
-  -+ Tuple a a
+  -> Sub (clone :: CLONE | c) a (Tuple a a)
 
 foreign import fst'FFI
-  :: ∀ a b
+  :: ∀ c a b
    . (b -! Unit)
   -> (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
-  -> Tuple a b
-  -! a
+  -> Sub (drop :: DROP | c) (Tuple a b) a
 
 foreign import snd'FFI
-  :: ∀ a b
+  :: ∀ c a b
    . (a -! Unit)
   -> (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
-  -> Tuple a b
-  -! b
+  -> Sub (drop :: DROP | c) (Tuple a b) b
 
 foreign import cloneArrayFFI
-  :: ∀ a
+  :: ∀ c a
    . (a -+ Tuple a a)
   -> (∀ l r. l -> r -> Tuple l r)
   -> (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
-  -> Array a
-  -+ Tuple (Array a) (Array a)
+  -> Sub (clone :: CLONE | c) (Array a) (Tuple (Array a) (Array a))
 
 foreign import dropArrayFFI
-  :: ∀ a
+  :: ∀ c a
    . (a -! Unit)
-  -> Array a
-  -! Unit
+  -> Sub (drop :: DROP | c) (Array a) Unit
 
 --------------------------------------------------------------------------------
 
