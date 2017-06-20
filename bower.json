@@ -2,6 +2,8 @@
   "name": "purescript-linear",
   "dependencies": {
     "purescript-arrays": "^4.1.1",
-    "purescript-prelude": "^3.0.0"
+    "purescript-prelude": "^3.0.0",
+    "purescript-eff": "^3.1.0",
+    "purescript-st": "^3.0.0"
   }
 }
