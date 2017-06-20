@@ -10,9 +10,23 @@ exports.unsafeDrop = function(a) {
   return null;
 };
 
-exports.cloneArrayFFI = function(Tuple) {
-  return function(array) {
-    return Tuple(array, array.slice());
+exports.cloneArrayFFI = function(clone) {
+  return function(Tuple) {
+    return function(fst) {
+      return function(snd) {
+        return function(array) {
+          var length = array.length;
+          var left = Array(length);
+          var right = Array(length);
+          for (var i = 0; i < length; ++i) {
+            var clones = clone(array[i]);
+            left[i] = fst(clones);
+            right[i] = snd(clones);
+          }
+          return Tuple(left, right);
+        };
+      };
+    };
   };
 };
 

@@ -17,7 +17,7 @@ module Data.Function.Sub
   , type (-+)
   ) where
 
-import Data.Tuple (Tuple(..))
+import Data.Tuple (Tuple(..), fst, snd)
 import Prelude
 
 --------------------------------------------------------------------------------
@@ -61,8 +61,9 @@ instance dropNumber :: Drop Number where drop = unsafeDrop
 instance cloneString :: Clone String where clone = unsafeClone
 instance dropString :: Drop String where drop = unsafeDrop
 
-instance cloneArray :: Clone (Array a) where clone = cloneArrayFFI Tuple
-instance dropArray :: Drop (Array a) where drop = unsafeDrop
+instance cloneArray :: (Clone a) => Clone (Array a) where
+  clone = cloneArrayFFI clone Tuple fst snd
+instance dropArray :: (Drop a) => Drop (Array a) where drop = unsafeDrop
 
 foreign import unsafeCloneFFI
   :: ∀ a
@@ -72,7 +73,10 @@ foreign import unsafeCloneFFI
 
 foreign import cloneArrayFFI
   :: ∀ a
-   . (∀ l r. l -> r -> Tuple l r)
+   . (a -+ Tuple a a)
+  -> (∀ l r. l -> r -> Tuple l r)
+  -> (∀ l r. Tuple l r -> l)
+  -> (∀ l r. Tuple l r -> r)
   -> Array a
   -+ Tuple (Array a) (Array a)
 
