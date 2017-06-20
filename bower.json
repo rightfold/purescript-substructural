@@ -1,5 +1,10 @@
 {
-  "name": "purescript-linear",
+  "name": "purescript-substructural",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:rightfold/purescript-substructural.git"
+  },
   "dependencies": {
     "purescript-arrays": "^4.1.1",
     "purescript-prelude": "^3.0.0",
