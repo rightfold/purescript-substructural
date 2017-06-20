@@ -5,10 +5,10 @@ module Data.Array.Linear
 import Control.Monad.Eff (Eff)
 import Control.Monad.ST (ST)
 import Data.Array.ST (STArray)
-import Data.Function.Linear (type (⊸))
+import Data.Function.Linear (type (-*))
 
 foreign import borrowArray
   :: ∀ a
    . (∀ s. STArray s a -> Eff (st :: ST s) (STArray s a))
   -> Array a
-  ⊸ Array a
+  -* Array a
