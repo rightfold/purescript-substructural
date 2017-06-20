@@ -6,13 +6,6 @@ exports.runSubArray = function(sub) {
   };
 };
 
-exports.borrowArray = function(scope) {
-  return function(array) {
-    scope(array)();
-    return array;
-  };
-};
-
 exports.reverse = function(array) {
   return array.reverse();
 };
