@@ -36,10 +36,9 @@ class Drop a where
   drop :: a -! Unit
 
 unsafeClone :: ∀ a. a -+ Tuple a a
-unsafeClone = Sub \a -> Tuple a a
+unsafeClone = unsafeCloneFFI Tuple
 
-unsafeDrop :: ∀ a. a -! Unit
-unsafeDrop = Sub \_ -> unit
+foreign import unsafeDrop :: ∀ a. a -! Unit
 
 instance cloneVoid :: Clone Void where clone = unsafeClone
 instance dropVoid :: Drop Void where drop = unsafeDrop
@@ -65,6 +64,12 @@ instance dropString :: Drop String where drop = unsafeDrop
 instance cloneArray :: Clone (Array a) where clone = cloneArrayFFI Tuple
 instance dropArray :: Drop (Array a) where drop = unsafeDrop
 
+foreign import unsafeCloneFFI
+  :: ∀ a
+   . (∀ l r. l -> r -> Tuple l r)
+  -> a
+  -+ Tuple a a
+
 foreign import cloneArrayFFI
   :: ∀ a
    . (∀ l r. l -> r -> Tuple l r)
@@ -73,10 +78,13 @@ foreign import cloneArrayFFI
 
 --------------------------------------------------------------------------------
 
-newtype Sub (c :: # Capability) a b = Sub (a -> b)
+foreign import data Sub :: # Capability -> Type -> Type -> Type
 
-derive newtype instance semigroupoidLinear :: Semigroupoid (Sub c)
-derive newtype instance categoryLinear :: Category (Sub c)
+instance semigroupoidLinear :: Semigroupoid (Sub c) where
+  compose = composeFFI
+
+instance categoryLinear :: Category (Sub c) where
+  id = idFFI
 
 type Linear = Sub ()
 type Affine = Sub (drop :: DROP)
@@ -85,3 +93,6 @@ type Relevant = Sub (clone :: CLONE)
 infixr 4 type Linear as -*
 infixr 4 type Affine as -!
 infixr 4 type Relevant as -+
+
+foreign import composeFFI :: ∀ c' a b c. Sub c' b c -> Sub c' a b -> Sub c' a c
+foreign import idFFI :: ∀ c a. Sub c a a
