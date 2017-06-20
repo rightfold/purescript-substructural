@@ -7,6 +7,8 @@ module Data.Function.Sub
   , class Drop, drop
   , unsafeClone
   , unsafeDrop
+  , fst'
+  , snd'
 
   , Sub
   , Linear
@@ -29,16 +31,31 @@ foreign import data DROP :: Capability
 
 --------------------------------------------------------------------------------
 
+-- | Values which can be cloned. Instances of `Clone` must satisfy the
+-- | following laws:
+-- |
+-- | - Clone: `fst' <<< clone = snd' <<< clone = id`
 class Clone a where
   clone :: a -+ Tuple a a
 
+-- | Values which can be dropped.
 class Drop a where
   drop :: a -! Unit
 
+-- | Unsafely clone a value.
 unsafeClone :: ∀ a. a -+ Tuple a a
 unsafeClone = unsafeCloneFFI Tuple
 
+-- | Unsafely drop a value.
 foreign import unsafeDrop :: ∀ a. a -! Unit
+
+-- | Drop the second element of a tuple.
+fst' :: ∀ a b. Drop b => Tuple a b -! a
+fst' = fst'FFI drop fst snd
+
+-- | Drop the first element of a tuple.
+snd' :: ∀ a b. Drop a => Tuple a b -! b
+snd' = snd'FFI drop fst snd
 
 instance cloneVoid :: Clone Void where clone = unsafeClone
 instance dropVoid :: Drop Void where drop = unsafeDrop
@@ -72,6 +89,22 @@ foreign import unsafeCloneFFI
   -> a
   -+ Tuple a a
 
+foreign import fst'FFI
+  :: ∀ a b
+   . (b -! Unit)
+  -> (∀ l r. Tuple l r -> l)
+  -> (∀ l r. Tuple l r -> r)
+  -> Tuple a b
+  -! a
+
+foreign import snd'FFI
+  :: ∀ a b
+   . (a -! Unit)
+  -> (∀ l r. Tuple l r -> l)
+  -> (∀ l r. Tuple l r -> r)
+  -> Tuple a b
+  -! b
+
 foreign import cloneArrayFFI
   :: ∀ a
    . (a -+ Tuple a a)
@@ -89,6 +122,9 @@ foreign import dropArrayFFI
 
 --------------------------------------------------------------------------------
 
+-- | A function that is restricted to certain capabilities. The runtime
+-- | representation is a unary JavaScript function that restricts itself to the
+-- | stated capabilities.
 foreign import data Sub :: # Capability -> Type -> Type -> Type
 
 instance semigroupoidLinear :: Semigroupoid (Sub c) where
@@ -97,8 +133,13 @@ instance semigroupoidLinear :: Semigroupoid (Sub c) where
 instance categoryLinear :: Category (Sub c) where
   id = idFFI
 
+-- | You may not clone or drop the argument.
 type Linear = Sub ()
+
+-- | You may not clone the argument.
 type Affine = Sub (drop :: DROP)
+
+-- | You may not drop the argument.
 type Relevant = Sub (clone :: CLONE)
 
 infixr 4 type Linear as -*
