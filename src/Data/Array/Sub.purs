@@ -13,6 +13,6 @@ foreign import runSubArray :: ∀ a b c. Sub c (Array a) b -> Array a -> b
 
 -- | Apply a mutating operation, without copying the array.
 foreign import borrowArray
-  :: ∀ a c
-   . (∀ s. STArray s a -> Eff (st :: ST s) (STArray s a))
-  -> Sub c (Array a) (Array a)
+  :: ∀ a b c
+   . (∀ s. STArray s a -> Eff (st :: ST s) (STArray s b))
+  -> Sub c (Array a) (Array b)
