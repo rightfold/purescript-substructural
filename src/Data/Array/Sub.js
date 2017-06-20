@@ -11,3 +11,7 @@ exports.borrowArray = function(scope) {
     return scope(array);
   };
 };
+
+exports.reverse = function(array) {
+  return array.reverse();
+};
