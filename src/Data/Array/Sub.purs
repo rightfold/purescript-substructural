@@ -28,7 +28,8 @@ foreign import empty :: ∀ a. Unit -* UniqueArray a
 foreign import singleton :: ∀ a. a -* UniqueArray a
 
 -- | O(1) memory, O(1) time. Append an element to an array.
-foreign import snoc :: ∀ a. UniqueArray a -> a -> UniqueArray a
+snoc :: ∀ a. Tuple (UniqueArray a) a -* UniqueArray a
+snoc = snocFFI fst snd
 
 -- | O(1) memory, O(n) time. Reverse an array.
 foreign import reverse :: ∀ a. UniqueArray a -* UniqueArray a
@@ -49,3 +50,10 @@ foreign import dropUniqueArrayFFI
    . (a -* Unit)
   -> UniqueArray a
   -* Unit
+
+foreign import snocFFI
+  :: ∀ a
+   . (∀ l r. Tuple l r -> l)
+  -> (∀ l r. Tuple l r -> r)
+  -> Tuple (UniqueArray a) a
+  -* UniqueArray a

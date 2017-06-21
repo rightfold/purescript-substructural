@@ -37,10 +37,14 @@ exports.singleton = function(element) {
   return [element];
 };
 
-exports.snoc = function(array) {
-  return function(element) {
-    array.push(element);
-    return array;
+exports.snocFFI = function(fst) {
+  return function(snd) {
+    return function(tuple) {
+      var array = fst(tuple);
+      var element = snd(tuple);
+      array.push(element);
+      return array;
+    };
   };
 };
 
