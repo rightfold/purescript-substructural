@@ -1,12 +1,8 @@
 module Data.Array.Sub
-  ( runSubArray
-  , reverse
+  ( reverse
   ) where
 
-import Data.Function.Sub (Sub)
-
--- | Apply a function to the copy of an array.
-foreign import runSubArray :: ∀ a b c. Sub c (Array a) b -> Array a -> b
+import Data.Function.Sub (type (-*))
 
 -- | Reverse an array in-place.
-foreign import reverse :: ∀ c a. Sub c (Array a) (Array a)
+foreign import reverse :: ∀ a. Array a -* Array a

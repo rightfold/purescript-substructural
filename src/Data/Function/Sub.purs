@@ -1,9 +1,5 @@
 module Data.Function.Sub
-  ( kind Capability
-  , CLONE
-  , DROP
-
-  , class Clone, clone
+  ( class Clone, clone
   , class Drop, drop
   , unsafeClone
   , unsafeDrop
@@ -11,23 +7,11 @@ module Data.Function.Sub
   , snd'
 
   , Sub
-  , Linear
-  , Affine
-  , Relevant
   , type (-*)
-  , type (-!)
-  , type (-+)
   ) where
 
 import Data.Tuple (Tuple(..), fst, snd)
 import Prelude
-
---------------------------------------------------------------------------------
-
-foreign import kind Capability
-
-foreign import data CLONE :: Capability
-foreign import data DROP :: Capability
 
 --------------------------------------------------------------------------------
 
@@ -36,25 +20,25 @@ foreign import data DROP :: Capability
 -- |
 -- | - Clone: `fst' <<< clone = snd' <<< clone = id`
 class Clone a where
-  clone :: ∀ c. Sub (clone :: CLONE | c) a (Tuple a a)
+  clone :: a -* Tuple a a
 
 -- | Values which can be dropped.
 class Drop a where
-  drop :: ∀ c. Sub (drop :: DROP | c) a Unit
+  drop :: a -* Unit
 
 -- | Unsafely clone a value.
-unsafeClone :: ∀ c a. Sub (clone :: CLONE | c) a (Tuple a a)
+unsafeClone :: ∀ a. a -* Tuple a a
 unsafeClone = unsafeCloneFFI Tuple
 
 -- | Unsafely drop a value.
-foreign import unsafeDrop :: ∀ c a. Sub (drop :: DROP | c) a Unit
+foreign import unsafeDrop :: ∀ a. a -* Unit
 
 -- | Drop the second element of a tuple.
-fst' :: ∀ c a b. Drop b => Sub (drop :: DROP | c) (Tuple a b) a
+fst' :: ∀ a b. Drop b => Tuple a b -* a
 fst' = fst'FFI drop fst snd
 
 -- | Drop the first element of a tuple.
-snd' :: ∀ c a b. Drop a => Sub (drop :: DROP | c) (Tuple a b) b
+snd' :: ∀ a b. Drop a => Tuple a b -* b
 snd' = snd'FFI drop fst snd
 
 instance cloneVoid :: Clone Void where clone = unsafeClone
@@ -84,62 +68,50 @@ instance dropArray :: (Drop a) => Drop (Array a) where
   drop = dropArrayFFI drop
 
 foreign import unsafeCloneFFI
-  :: ∀ c a
+  :: ∀ a
    . (∀ l r. l -> r -> Tuple l r)
-  -> Sub (clone :: CLONE | c) a (Tuple a a)
+  -> a
+  -* Tuple a a
 
 foreign import fst'FFI
-  :: ∀ c a b
-   . (b -! Unit)
+  :: ∀ a b
+   . (b -* Unit)
   -> (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
-  -> Sub (drop :: DROP | c) (Tuple a b) a
+  -> Tuple a b
+  -* a
 
 foreign import snd'FFI
-  :: ∀ c a b
-   . (a -! Unit)
+  :: ∀ a b
+   . (a -* Unit)
   -> (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
-  -> Sub (drop :: DROP | c) (Tuple a b) b
+  -> Tuple a b
+  -* b
 
 foreign import cloneArrayFFI
-  :: ∀ c a
-   . (a -+ Tuple a a)
+  :: ∀ a
+   . (a -* Tuple a a)
   -> (∀ l r. l -> r -> Tuple l r)
   -> (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
-  -> Sub (clone :: CLONE | c) (Array a) (Tuple (Array a) (Array a))
+  -> Array a
+  -* Tuple (Array a) (Array a)
 
-foreign import dropArrayFFI
-  :: ∀ c a
-   . (a -! Unit)
-  -> Sub (drop :: DROP | c) (Array a) Unit
+foreign import dropArrayFFI :: ∀ a. (a -* Unit) -> Array a -* Unit
 
 --------------------------------------------------------------------------------
 
--- | A function that is restricted to certain capabilities. The runtime
--- | representation is a unary JavaScript function that restricts itself to the
--- | stated capabilities.
-foreign import data Sub :: # Capability -> Type -> Type -> Type
+-- | A function.
+foreign import data Sub :: Type -> Type -> Type
 
-instance semigroupoidLinear :: Semigroupoid (Sub c) where
+instance semigroupoidLinear :: Semigroupoid Sub where
   compose = composeFFI
 
-instance categoryLinear :: Category (Sub c) where
+instance categoryLinear :: Category Sub where
   id = idFFI
 
--- | You may not clone or drop the argument.
-type Linear = Sub ()
+infixr 4 type Sub as -*
 
--- | You may not clone the argument.
-type Affine = Sub (drop :: DROP)
-
--- | You may not drop the argument.
-type Relevant = Sub (clone :: CLONE)
-
-infixr 4 type Linear as -*
-infixr 4 type Affine as -!
-infixr 4 type Relevant as -+
-
-foreign import composeFFI :: ∀ c' a b c. Sub c' b c -> Sub c' a b -> Sub c' a c
-foreign import idFFI :: ∀ c a. Sub c a a
+foreign import composeFFI :: ∀ a b c. Sub b c -> Sub a b -> Sub a c
+foreign import idFFI :: ∀ a. Sub a a
