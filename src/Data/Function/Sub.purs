@@ -1,6 +1,7 @@
 module Data.Function.Sub
   ( Sub
   , type (-*)
+  , liftShared
 
   , class Clone, clone
   , class Drop, drop
@@ -30,8 +31,13 @@ instance categoryLinear :: Category Sub where
 
 infixr 4 type Sub as -*
 
+-- Lift a function over shared values into a `Sub`.
+liftShared :: ∀ a b. Shared a => Shared b => (a -> b) -> a -* b
+liftShared = liftSharedFFI
+
 foreign import composeFFI :: ∀ a b c. Sub b c -> Sub a b -> Sub a c
 foreign import idFFI :: ∀ a. Sub a a
+foreign import liftSharedFFI :: ∀ a b. (a -> b) -> a -* b
 
 --------------------------------------------------------------------------------
 

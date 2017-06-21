@@ -14,6 +14,12 @@ exports.idFFI = function(a) {
   return a;
 };
 
+exports.liftSharedFFI = function(func) {
+  return function(value) {
+    return func(value);
+  };
+};
+
 /* -------------------------------------------------------------------------- */
 
 exports.unsafeCloneFFI = function(Tuple) {

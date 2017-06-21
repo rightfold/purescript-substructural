@@ -7,12 +7,13 @@ module Data.Array.Sub
 
   , snoc
 
+  , isEmpty
   , length
 
   , reverse
   ) where
 
-import Data.Function.Sub (class Clone, class Drop, class Shared, type (-*), Borrow, clone, drop)
+import Data.Function.Sub (class Clone, class Drop, class Shared, type (-*), Borrow, clone, drop, liftShared)
 import Data.Tuple (Tuple(..), fst, snd)
 import Prelude
 
@@ -70,6 +71,10 @@ foreign import snocFFI
   -* UniqueArray a
 
 --------------------------------------------------------------------------------
+
+-- | O(1) memory, O(1) time. Return whether the array is empty.
+isEmpty :: ∀ a. Borrow (UniqueArray a) -* Boolean
+isEmpty = liftShared (eq 0) <<< length
 
 -- | O(1) memory, O(1) time. Return the length of an array.
 foreign import length :: ∀ a. Borrow (UniqueArray a) -* Int
