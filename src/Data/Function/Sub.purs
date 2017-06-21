@@ -9,6 +9,9 @@ module Data.Function.Sub
   , unsafeDrop
   , fst'
   , snd'
+
+  , Borrow
+  , borrow
   ) where
 
 import Data.Tuple (Tuple(..), fst, snd)
@@ -142,3 +145,25 @@ foreign import dropTupleFFI
   -> (b -* Unit)
   -> Tuple a b
   -* Unit
+
+--------------------------------------------------------------------------------
+
+-- | A `Borrow` is a reference to a value. When a borrow to a value is live,
+-- | the value cannot be accessed unless it is `Shared`. Some functions take
+-- | borrows to avoid inconvenient tupling.
+foreign import data Borrow :: Type -> Type
+
+instance cloneBorrow :: Clone (Borrow a) where clone = unsafeClone
+instance dropBorrow :: Drop (Borrow a) where drop = unsafeDrop
+instance sharedBorrow :: (Shared a) => Shared (Borrow a)
+
+-- | Borrow a value during the execution of a function.
+borrow :: ∀ a b. Shared b => (Borrow a -* b) -> a -* Tuple a b
+borrow = borrowFFI Tuple
+
+foreign import borrowFFI
+  :: ∀ a b
+   . (∀ l r. l -> r -> Tuple l r)
+  -> (Borrow a -* b)
+  -> a
+  -* Tuple a b

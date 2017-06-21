@@ -7,10 +7,12 @@ module Data.Array.Sub
 
   , snoc
 
+  , length
+
   , reverse
   ) where
 
-import Data.Function.Sub (class Clone, class Drop, class Shared, type (-*), clone, drop)
+import Data.Function.Sub (class Clone, class Drop, class Shared, type (-*), Borrow, clone, drop)
 import Data.Tuple (Tuple(..), fst, snd)
 import Prelude
 
@@ -66,6 +68,11 @@ foreign import snocFFI
   -> (∀ l r. Tuple l r -> r)
   -> Tuple (UniqueArray a) a
   -* UniqueArray a
+
+--------------------------------------------------------------------------------
+
+-- | O(1) memory, O(1) time. Return the length of an array.
+foreign import length :: ∀ a. Borrow (UniqueArray a) -* Int
 
 --------------------------------------------------------------------------------
 

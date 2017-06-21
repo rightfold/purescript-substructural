@@ -81,3 +81,14 @@ exports.dropTupleFFI = function(fst) {
     };
   };
 };
+
+/* -------------------------------------------------------------------------- */
+
+exports.borrowFFI = function(Tuple) {
+  return function(func) {
+    return function(value) {
+      var result = func(value);
+      return Tuple(value, result);
+    };
+  };
+};

@@ -60,6 +60,12 @@ exports.snocFFI = function(fst) {
 
 /* -------------------------------------------------------------------------- */
 
+exports.length = function(array) {
+  return array.length;
+};
+
+/* -------------------------------------------------------------------------- */
+
 exports.reverse = function(array) {
   return array.reverse();
 };
