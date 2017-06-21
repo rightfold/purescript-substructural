@@ -26,6 +26,10 @@ class Clone a where
 class Drop a where
   drop :: a -* Unit
 
+-- | Values for which multiple references can exist. `Clone` and `Drop`
+-- | instances may be trivial.
+class (Clone a, Drop a) <= Shared a
+
 -- | Unsafely clone a value.
 unsafeClone :: ∀ a. a -* Tuple a a
 unsafeClone = unsafeCloneFFI Tuple
@@ -43,29 +47,35 @@ snd' = snd'FFI drop fst snd
 
 instance cloneVoid :: Clone Void where clone = unsafeClone
 instance dropVoid :: Drop Void where drop = unsafeDrop
+instance sharedVoid :: Shared Void
 
 instance cloneUnit :: Clone Unit where clone = unsafeClone
 instance dropUnit :: Drop Unit where drop = unsafeDrop
+instance sharedUnit :: Shared Unit
 
 instance cloneBoolean :: Clone Boolean where clone = unsafeClone
 instance dropBoolean :: Drop Boolean where drop = unsafeDrop
+instance sharedBoolean :: Shared Boolean
 
 instance cloneChar :: Clone Char where clone = unsafeClone
 instance dropChar :: Drop Char where drop = unsafeDrop
+instance sharedChar :: Shared Char
 
 instance cloneInt :: Clone Int where clone = unsafeClone
 instance dropInt :: Drop Int where drop = unsafeDrop
+instance sharedInt :: Shared Int
 
 instance cloneNumber :: Clone Number where clone = unsafeClone
 instance dropNumber :: Drop Number where drop = unsafeDrop
+instance sharedNumber :: Shared Number
 
 instance cloneString :: Clone String where clone = unsafeClone
 instance dropString :: Drop String where drop = unsafeDrop
+instance sharedString :: Shared String
 
-instance cloneArray :: (Clone a) => Clone (Array a) where
-  clone = cloneArrayFFI clone Tuple fst snd
-instance dropArray :: (Drop a) => Drop (Array a) where
-  drop = dropArrayFFI drop
+instance cloneArray :: (Shared a) => Clone (Array a) where clone = unsafeClone
+instance dropArray :: (Shared a) => Drop (Array a) where drop = unsafeDrop
+instance sharedArray :: (Shared a) => Shared (Array a)
 
 foreign import unsafeCloneFFI
   :: ∀ a
@@ -88,17 +98,6 @@ foreign import snd'FFI
   -> (∀ l r. Tuple l r -> r)
   -> Tuple a b
   -* b
-
-foreign import cloneArrayFFI
-  :: ∀ a
-   . (a -* Tuple a a)
-  -> (∀ l r. l -> r -> Tuple l r)
-  -> (∀ l r. Tuple l r -> l)
-  -> (∀ l r. Tuple l r -> r)
-  -> Array a
-  -* Tuple (Array a) (Array a)
-
-foreign import dropArrayFFI :: ∀ a. (a -* Unit) -> Array a -* Unit
 
 --------------------------------------------------------------------------------
 
