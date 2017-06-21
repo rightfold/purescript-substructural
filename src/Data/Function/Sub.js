@@ -14,6 +14,12 @@ exports.idFFI = function(a) {
   return a;
 };
 
+exports.runSharedFFI = function(func) {
+  return function(value) {
+    return func(value);
+  };
+};
+
 exports.liftSharedFFI = function(func) {
   return function(value) {
     return func(value);
