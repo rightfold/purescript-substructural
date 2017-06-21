@@ -1,4 +1,4 @@
-module Data.Array.Sub
+module Data.Array.Unique
   ( UniqueArray
 
   , empty
