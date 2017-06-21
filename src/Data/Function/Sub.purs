@@ -62,6 +62,30 @@ fst' = fst'FFI drop fst snd
 snd' :: ∀ a b. Drop a => Tuple a b -* b
 snd' = snd'FFI drop fst snd
 
+foreign import unsafeCloneFFI
+  :: ∀ a
+   . (∀ l r. l -> r -> Tuple l r)
+  -> a
+  -* Tuple a a
+
+foreign import fst'FFI
+  :: ∀ a b
+   . (b -* Unit)
+  -> (∀ l r. Tuple l r -> l)
+  -> (∀ l r. Tuple l r -> r)
+  -> Tuple a b
+  -* a
+
+foreign import snd'FFI
+  :: ∀ a b
+   . (a -* Unit)
+  -> (∀ l r. Tuple l r -> l)
+  -> (∀ l r. Tuple l r -> r)
+  -> Tuple a b
+  -* b
+
+--------------------------------------------------------------------------------
+
 instance cloneVoid :: Clone Void where clone = unsafeClone
 instance dropVoid :: Drop Void where drop = unsafeDrop
 instance sharedVoid :: Shared Void
@@ -94,24 +118,27 @@ instance cloneArray :: (Shared a) => Clone (Array a) where clone = unsafeClone
 instance dropArray :: (Shared a) => Drop (Array a) where drop = unsafeDrop
 instance sharedArray :: (Shared a) => Shared (Array a)
 
-foreign import unsafeCloneFFI
-  :: ∀ a
+instance cloneTuple :: (Clone a, Clone b) => Clone (Tuple a b) where
+  clone = cloneTupleFFI Tuple fst snd clone clone
+instance dropTuple :: (Drop a, Drop b) => Drop (Tuple a b) where
+  drop = dropTupleFFI fst snd drop drop
+instance sharedTuple :: (Shared a, Shared b) => Shared (Tuple a b)
+
+foreign import cloneTupleFFI
+  :: ∀ a b
    . (∀ l r. l -> r -> Tuple l r)
-  -> a
-  -* Tuple a a
-
-foreign import fst'FFI
-  :: ∀ a b
-   . (b -* Unit)
   -> (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
+  -> (a -* Tuple a a)
+  -> (b -* Tuple b b)
   -> Tuple a b
-  -* a
+  -* Tuple (Tuple a b) (Tuple a b)
 
-foreign import snd'FFI
+foreign import dropTupleFFI
   :: ∀ a b
-   . (a -* Unit)
-  -> (∀ l r. Tuple l r -> l)
+   . (∀ l r. Tuple l r -> l)
   -> (∀ l r. Tuple l r -> r)
+  -> (a -* Unit)
+  -> (b -* Unit)
   -> Tuple a b
-  -* b
+  -* Unit

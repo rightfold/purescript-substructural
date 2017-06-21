@@ -1,5 +1,21 @@
 'use strict';
 
+/* -------------------------------------------------------------------------- */
+
+exports.composeFFI = function(f) {
+  return function(g) {
+    return function(x) {
+      return f(g(x));
+    };
+  };
+};
+
+exports.idFFI = function(a) {
+  return a;
+};
+
+/* -------------------------------------------------------------------------- */
+
 exports.unsafeCloneFFI = function(Tuple) {
   return function(a) {
     return Tuple(a, a);
@@ -32,14 +48,36 @@ exports['snd\'FFI'] = function(drop) {
   };
 };
 
-exports.composeFFI = function(f) {
-  return function(g) {
-    return function(x) {
-      return f(g(x));
+/* -------------------------------------------------------------------------- */
+
+exports.cloneTupleFFI = function(Tuple) {
+  return function(fst) {
+    return function(snd) {
+      return function(cloneA) {
+        return function(cloneB) {
+          return function(tuple) {
+            var aClones = cloneA(fst(tuple));
+            var bClones = cloneB(snd(tuple));
+            return Tuple(
+              Tuple(fst(aClones), fst(bClones)),
+              Tuple(snd(aClones), snd(bClones))
+            );
+          };
+        };
+      };
     };
   };
 };
 
-exports.idFFI = function(a) {
-  return a;
+exports.dropTupleFFI = function(fst) {
+  return function(snd) {
+    return function(dropA) {
+      return function(dropB) {
+        return function(tuple) {
+          dropA(fst(tuple));
+          dropB(snd(tuple));
+        };
+      };
+    };
+  };
 };
