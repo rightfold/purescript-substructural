@@ -1,17 +1,34 @@
 module Data.Function.Sub
-  ( class Clone, clone
+  ( Sub
+  , type (-*)
+
+  , class Clone, clone
   , class Drop, drop
+  , class Shared
   , unsafeClone
   , unsafeDrop
   , fst'
   , snd'
-
-  , Sub
-  , type (-*)
   ) where
 
 import Data.Tuple (Tuple(..), fst, snd)
 import Prelude
+
+--------------------------------------------------------------------------------
+
+-- | A function.
+foreign import data Sub :: Type -> Type -> Type
+
+instance semigroupoidLinear :: Semigroupoid Sub where
+  compose = composeFFI
+
+instance categoryLinear :: Category Sub where
+  id = idFFI
+
+infixr 4 type Sub as -*
+
+foreign import composeFFI :: ∀ a b c. Sub b c -> Sub a b -> Sub a c
+foreign import idFFI :: ∀ a. Sub a a
 
 --------------------------------------------------------------------------------
 
@@ -26,8 +43,8 @@ class Clone a where
 class Drop a where
   drop :: a -* Unit
 
--- | Values for which multiple references can exist. `Clone` and `Drop`
--- | instances may be trivial.
+-- | Values for which multiple live references can exist. `Clone` and `Drop`
+-- | instances may be no-ops.
 class (Clone a, Drop a) <= Shared a
 
 -- | Unsafely clone a value.
@@ -98,19 +115,3 @@ foreign import snd'FFI
   -> (∀ l r. Tuple l r -> r)
   -> Tuple a b
   -* b
-
---------------------------------------------------------------------------------
-
--- | A function.
-foreign import data Sub :: Type -> Type -> Type
-
-instance semigroupoidLinear :: Semigroupoid Sub where
-  compose = composeFFI
-
-instance categoryLinear :: Category Sub where
-  id = idFFI
-
-infixr 4 type Sub as -*
-
-foreign import composeFFI :: ∀ a b c. Sub b c -> Sub a b -> Sub a c
-foreign import idFFI :: ∀ a. Sub a a
