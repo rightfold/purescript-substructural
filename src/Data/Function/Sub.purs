@@ -31,7 +31,7 @@ instance categoryLinear :: Category Sub where
 
 infixr 4 type Sub as -*
 
--- Lift a function over shared values into a `Sub`.
+-- | Lift a function over shared values into a `Sub`.
 liftShared :: ∀ a b. Shared a => Shared b => (a -> b) -> a -* b
 liftShared = liftSharedFFI
 
