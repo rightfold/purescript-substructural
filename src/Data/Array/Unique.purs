@@ -4,6 +4,7 @@ module Data.Array.Unique
   , empty
   , singleton
   , fromShared
+  , toShared
 
   , snoc
 
@@ -55,7 +56,12 @@ foreign import singleton :: ∀ a. a -* UniqueArray a
 fromShared :: ∀ a. Shared a => Array a -* UniqueArray a
 fromShared = fromSharedFFI
 
+-- | O(1) memory, O(1) time. Create a shared array from a unique array.
+toShared :: ∀ a. Shared a => UniqueArray a -* Array a
+toShared = toSharedFFI
+
 foreign import fromSharedFFI :: ∀ a. Array a -* UniqueArray a
+foreign import toSharedFFI :: ∀ a. UniqueArray a -* Array a
 
 --------------------------------------------------------------------------------
 

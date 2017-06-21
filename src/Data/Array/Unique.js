@@ -45,6 +45,10 @@ exports.fromSharedFFI = function(array) {
   return array.slice();
 };
 
+exports.toSharedFFI = function(array) {
+  return array;
+};
+
 /* -------------------------------------------------------------------------- */
 
 exports.snocFFI = function(fst) {
