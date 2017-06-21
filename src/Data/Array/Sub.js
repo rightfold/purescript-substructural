@@ -1,5 +1,7 @@
 'use strict';
 
+/* -------------------------------------------------------------------------- */
+
 exports.cloneUniqueArrayFFI = function(clone) {
   return function(Tuple) {
     return function(fst) {
@@ -29,6 +31,8 @@ exports.dropUniqueArrayFFI = function(drop) {
   };
 };
 
+/* -------------------------------------------------------------------------- */
+
 exports.empty = function(unit) {
   return [];
 };
@@ -36,6 +40,12 @@ exports.empty = function(unit) {
 exports.singleton = function(element) {
   return [element];
 };
+
+exports.fromSharedFFI = function(array) {
+  return array.slice();
+};
+
+/* -------------------------------------------------------------------------- */
 
 exports.snocFFI = function(fst) {
   return function(snd) {
@@ -47,6 +57,8 @@ exports.snocFFI = function(fst) {
     };
   };
 };
+
+/* -------------------------------------------------------------------------- */
 
 exports.reverse = function(array) {
   return array.reverse();
