@@ -15,7 +15,7 @@ exports.cloneUniqueArrayFFI = function(clone) {
             left[i] = fst(clones);
             right[i] = snd(clones);
           }
-          return Tuple(left, right);
+          return Tuple(left)(right);
         };
       };
     };

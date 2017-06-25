@@ -30,7 +30,7 @@ exports.liftSharedFFI = function(func) {
 
 exports.unsafeCloneFFI = function(Tuple) {
   return function(a) {
-    return Tuple(a, a);
+    return Tuple(a)(a);
   };
 };
 
@@ -71,8 +71,9 @@ exports.cloneTupleFFI = function(Tuple) {
             var aClones = cloneA(fst(tuple));
             var bClones = cloneB(snd(tuple));
             return Tuple(
-              Tuple(fst(aClones), fst(bClones)),
-              Tuple(snd(aClones), snd(bClones))
+              Tuple(fst(aClones))(fst(bClones))
+            )(
+              Tuple(snd(aClones))(snd(bClones))
             );
           };
         };
@@ -100,7 +101,7 @@ exports.borrowFFI = function(Tuple) {
   return function(func) {
     return function(value) {
       var result = func(value);
-      return Tuple(value, result);
+      return Tuple(value)(result);
     };
   };
 };
