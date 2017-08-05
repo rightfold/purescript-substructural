@@ -9,8 +9,6 @@ module Data.Function.Sub
   , class Shared
   , unsafeClone
   , unsafeDrop
-  , fst'
-  , snd'
 
   , Borrow
   , borrow
@@ -74,35 +72,11 @@ unsafeClone = unsafeCloneFFI Tuple
 -- | Unsafely drop a value.
 foreign import unsafeDrop :: ∀ a. a -* Unit
 
--- | Drop the second element of a tuple.
-fst' :: ∀ a b. Drop b => Tuple a b -* a
-fst' = fst'FFI drop fst snd
-
--- | Drop the first element of a tuple.
-snd' :: ∀ a b. Drop a => Tuple a b -* b
-snd' = snd'FFI drop fst snd
-
 foreign import unsafeCloneFFI
   :: ∀ a
    . (∀ l r. l -> r -> Tuple l r)
   -> a
   -* Tuple a a
-
-foreign import fst'FFI
-  :: ∀ a b
-   . (b -* Unit)
-  -> (∀ l r. Tuple l r -> l)
-  -> (∀ l r. Tuple l r -> r)
-  -> Tuple a b
-  -* a
-
-foreign import snd'FFI
-  :: ∀ a b
-   . (a -* Unit)
-  -> (∀ l r. Tuple l r -> l)
-  -> (∀ l r. Tuple l r -> r)
-  -> Tuple a b
-  -* b
 
 --------------------------------------------------------------------------------
 

@@ -3,8 +3,9 @@ module Test.Data.Array.Unique
   ) where
 
 import Data.Array.Unique (UniqueArray, empty, fromShared, isEmpty, length, reverse, singleton, snoc, toShared)
-import Data.Function.Sub (type (-*), borrow, runShared, snd')
+import Data.Function.Sub (type (-*), borrow, runShared)
 import Data.Tuple (Tuple)
+import Data.Tuple.Sub (dropFst)
 import Prelude
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
@@ -25,11 +26,11 @@ spec = describe "Data.Array.Unique" do
 
   describe "isEmpty" do
     it "true" $
-      let snd'' = snd' :: Tuple (UniqueArray Int) Boolean -* Boolean in
-      runShared (empty >>> borrow isEmpty >>> snd'') unit
+      let dropFst' = dropFst :: Tuple (UniqueArray Int) Boolean -* Boolean in
+      runShared (empty >>> borrow isEmpty >>> dropFst') unit
       `shouldEqual` true
     it "false" $
-      runShared (singleton >>> borrow isEmpty >>> snd') 1
+      runShared (singleton >>> borrow isEmpty >>> dropFst) 1
       `shouldEqual` false
 
   it "reverse" $
