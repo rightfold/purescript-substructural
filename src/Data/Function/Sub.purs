@@ -21,7 +21,12 @@ import Prelude
 
 --------------------------------------------------------------------------------
 
--- | A function.
+-- | A function that will not copy or discard references to its argument,
+-- | unless it is allowed to by a `Clone` or `Drop` instance.
+-- |
+-- | Currently there is no syntax for `Sub` literals. You can create `Sub`
+-- | values only through combinators (mainly `<<<`) and the FFI (normal pure
+-- | unary JavaScript function).
 foreign import data Sub :: Type -> Type -> Type
 
 instance semigroupoidLinear :: Semigroupoid Sub where
